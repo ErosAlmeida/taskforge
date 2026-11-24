@@ -31,6 +31,7 @@ export class TasksService {
     return task;
   }
   //teste
+  //teste2
 
   delete(number: number) {
     const tasks = this.tasks;
