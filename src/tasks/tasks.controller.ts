@@ -4,12 +4,14 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
-  Put,
 } from '@nestjs/common';
 
 import { TasksService } from './tasks.service';
+import { CreateTaskDto } from './dto/create-task-dto';
+import type { Task } from '../generated/prisma/client';
 
 @Controller('tasks')
 export class TasksController {
@@ -21,24 +23,26 @@ export class TasksController {
   }
 
   @Get(':id')
-  findOneTasks(@Param('id') id: string) {
+  findOneTasks(@Param('id', ParseIntPipe) id: string) {
     return this.tasksService.findOne(id);
   }
+//verificar pipe
 
   @Post()
-  createTask(@Body('title') title: string) {
-    return this.tasksService.create(title);
+  createTask(@Body() data: CreateTaskDto): Promise<Task> {
+    return this.tasksService.create(data);
   }
 
   @Delete(':id')
   deleteTask(@Param('id') id: string) {
     return this.tasksService.delete(id);
   }
+
   @Patch(':id')
   updateTask(
     @Param('id') id: string,
-    @Body() data: { title: string; completed: boolean },
-  ) {
-    return this.tasksService.update(id, data.title, data.completed);
+    @Body() data: { title?: string; completed?: boolean },
+  ): Promise<Task> {
+    return this.tasksService.update(id, data);
   }
 }

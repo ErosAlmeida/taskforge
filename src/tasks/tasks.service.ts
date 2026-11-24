@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateTaskDto } from './dto/create-task-dto';
 
 @Injectable()
 export class TasksService {
@@ -24,10 +25,10 @@ export class TasksService {
   }
 
   // Cria uma nova tarefa
-  create(title: string) {
+  create(data: CreateTaskDto) {
     return this.prisma.task.create({
       data: {
-        title,
+        title: data.title,
         completed: false,
       },
     });
@@ -47,7 +48,9 @@ export class TasksService {
       where: { id },
     });
   }
-  async update(id: string, title: string, completed: boolean) {
+
+  // Atualiza uma tarefa
+  async update(id: string, data: { title?: string; completed?: boolean }) {
     const task = await this.prisma.task.findUnique({
       where: { id },
     });
@@ -58,10 +61,7 @@ export class TasksService {
 
     return this.prisma.task.update({
       where: { id },
-      data: {
-        title,
-        completed,
-      },
+      data,
     });
   }
 }
