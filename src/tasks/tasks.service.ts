@@ -1,19 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class TasksService {
-  private tasks = [
-    { id: 1, title: 'Estudar NestJS' },
-    { id: 2, title: 'Estudar TypeScript' },
-    { id: 3, title: 'Estudar Node.js' },
-  ];
+  constructor(private prisma: PrismaService) {}
 
+  // Busca todas as tarefas
   findAllTasks() {
-    return this.tasks;
+    return this.prisma.task.findMany();
   }
 
-  findOne(id: number) {
-    const task = this.tasks.find((task) => task.id === id);
+  // Busca uma tarefa pelo ID
+  async findOne(id: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
 
     if (!task) {
       throw new NotFoundException('Task not found');
@@ -22,19 +23,45 @@ export class TasksService {
     return task;
   }
 
-  create(task: TasksService) {
-    const tasks = this.tasks;
+  // Cria uma nova tarefa
+  create(title: string) {
+    return this.prisma.task.create({
+      data: {
+        title,
+        completed: false,
+      },
+    });
+  }
+
+  // Exclui uma tarefa pelo ID
+  async delete(id: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
 
     if (!task) {
       throw new NotFoundException('Task not found');
     }
-    return task;
+
+    return this.prisma.task.delete({
+      where: { id },
+    });
   }
-  //teste
-  //teste2
+  async update(id: string, title: string, completed: boolean) {
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+    });
 
-  delete(number: number) {
-    const tasks = this.tasks;
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
 
+    return this.prisma.task.update({
+      where: { id },
+      data: {
+        title,
+        completed,
+      },
+    });
   }
 }
