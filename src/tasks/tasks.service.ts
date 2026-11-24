@@ -30,6 +30,7 @@ export class TasksService {
     }
     return task;
   }
+  //teste
 
   delete(number: number) {
     const tasks = this.tasks;
